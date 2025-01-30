@@ -20,13 +20,15 @@ export async function handleSignUp(req: Request, res: Response) {
       const { id } = val[0];
       res
         .status(201)
-        .json(APIResponse(true, "Account Created Successfully", { id }));
+        .json(APIResponse(true, "Account Created Successfully", { id }, false));
     } else {
-      res.status(400).json(APIResponse(false, "Account could not be created"));
+      res
+        .status(400)
+        .json(APIResponse(false, "Account could not be created", {}, false));
     }
   } catch (error: unknown) {
     const msg = GetErrorMessage(error, "Account could not be created");
-    res.status(400).json(APIResponse(false, msg));
+    res.status(400).json(APIResponse(false, msg, {}, false));
   }
 }
 export async function handleSignIn(req: Request, res: Response) {
@@ -45,12 +47,12 @@ export async function handleSignIn(req: Request, res: Response) {
         throw new Error("Incorrect Password");
       }
       const token: string = JWTSignToken(user);
-      res.status(200).json(APIResponse(true, "Signed In", { token }));
+      res.status(200).json(APIResponse(true, "Signed In", { token }, true));
     } else {
-      res.status(400).json(APIResponse(false, "Account not found"));
+      res.status(400).json(APIResponse(false, "Account not found", {}, false));
     }
   } catch (error: unknown) {
     const msg = GetErrorMessage(error, "Could not sign in");
-    res.status(400).json(APIResponse(false, msg));
+    res.status(400).json(APIResponse(false, msg, {}, false));
   }
 }

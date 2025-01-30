@@ -7,7 +7,7 @@ import { JwtPayload } from "jsonwebtoken";
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload & TPayload; // Replace `any` with a proper user type if available
+      user?: JwtPayload & TPayload;
     }
   }
 }
@@ -15,29 +15,46 @@ declare global {
 export function VerifyToken(ignoredRoutes: string[]) {
   return function (req: Request, res: Response, next: NextFunction) {
     try {
-      if (ignoredRoutes.includes(req.path)) {
+      if (ignoredRoutes.some((route) => req.originalUrl.startsWith(route))) {
         next();
+        return;
       }
       const header = req.headers.authorization;
-      if (!header)
-        return res
-          .status(401)
-          .json(APIResponse(false, "authorization request header not passed"));
-
-      const token = header.split(" ")[1];
-      if (!token)
-        return res
+      if (!header) {
+        res
           .status(401)
           .json(
-            APIResponse(false, "token missing in authorization request header")
+            APIResponse(
+              false,
+              "authorization request header not passed",
+              {},
+              false
+            )
           );
+        return;
+      }
+
+      const token = header.split(" ")[1] ?? "";
+      if (!token) {
+        res
+          .status(401)
+          .json(
+            APIResponse(
+              false,
+              "token missing in authorization request header",
+              {},
+              false
+            )
+          );
+        return;
+      }
 
       const user = JWTVerifyToken(token) as JwtPayload & TPayload;
       req.user = user;
       next();
     } catch (error: unknown) {
       const msg = GetErrorMessage(error, "Could Not Verify token");
-      res.status(401).json(APIResponse(false, msg));
+      res.status(401).json(APIResponse(false, msg, {}, false));
     }
   };
 }

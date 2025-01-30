@@ -1,8 +1,12 @@
-import { date, pgTable, unique, uuid } from "drizzle-orm/pg-core";
+import { date, pgEnum, pgTable, unique, uuid } from "drizzle-orm/pg-core";
 import { CandidateDetailsTable } from "./candidateDetail";
 import { TimeSlotsTable } from "./timeSlot";
 import { HrDetailsTable } from "./hrDetail";
 
+export const InterviewStatusEnum = pgEnum("interview_status", [
+  "Pending",
+  "Finished",
+]);
 export const ScheduleTable = pgTable(
   "schedule",
   {
@@ -14,6 +18,7 @@ export const ScheduleTable = pgTable(
     hr_id: uuid("hr_id")
       .references(() => HrDetailsTable.hr_id)
       .notNull(),
+    interview_status: InterviewStatusEnum().default("Pending").notNull(),
     candidate_id: uuid("candidate_id")
       .references(() => CandidateDetailsTable.candidate_id)
       .notNull(),
