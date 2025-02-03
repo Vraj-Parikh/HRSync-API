@@ -1,62 +1,9 @@
 {
-  "id": "34f735da-3a75-47dd-8595-d83d84d547d3",
+  "id": "8de6d60c-e5e0-4d4b-bba7-6d74df478b3e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.candidate_details": {
-      "name": "candidate_details",
-      "schema": "",
-      "columns": {
-        "candidate_id": {
-          "name": "candidate_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "contact_no": {
-          "name": "contact_no",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "candidate_details_contact_no_unique": {
-          "name": "candidate_details_contact_no_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "contact_no"
-          ]
-        },
-        "candidate_details_email_unique": {
-          "name": "candidate_details_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.hr_details": {
       "name": "hr_details",
       "schema": "",
@@ -97,13 +44,6 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
-        },
-        "is_verified": {
-          "name": "is_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
         }
       },
       "indexes": {},
@@ -146,9 +86,15 @@
           "primaryKey": false,
           "notNull": true
         },
-        "time_slot_id": {
-          "name": "time_slot_id",
-          "type": "uuid",
+        "start_time": {
+          "name": "start_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_time": {
+          "name": "end_time",
+          "type": "time",
           "primaryKey": false,
           "notNull": true
         },
@@ -158,28 +104,41 @@
           "primaryKey": false,
           "notNull": true
         },
-        "candidate_id": {
-          "name": "candidate_id",
-          "type": "uuid",
+        "interview_status": {
+          "name": "interview_status",
+          "type": "interview_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Pending'"
+        },
+        "candidate_first_name": {
+          "name": "candidate_first_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "candidate_last_name": {
+          "name": "candidate_last_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "candidate_contact_no": {
+          "name": "candidate_contact_no",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "candidate_email": {
+          "name": "candidate_email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "schedule_time_slot_id_time_slots_time_slot_id_fk": {
-          "name": "schedule_time_slot_id_time_slots_time_slot_id_fk",
-          "tableFrom": "schedule",
-          "tableTo": "time_slots",
-          "columnsFrom": [
-            "time_slot_id"
-          ],
-          "columnsTo": [
-            "time_slot_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "schedule_hr_id_hr_details_hr_id_fk": {
           "name": "schedule_hr_id_hr_details_hr_id_fk",
           "tableFrom": "schedule",
@@ -192,71 +151,53 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "schedule_candidate_id_candidate_details_candidate_id_fk": {
-          "name": "schedule_candidate_id_candidate_details_candidate_id_fk",
-          "tableFrom": "schedule",
-          "tableTo": "candidate_details",
-          "columnsFrom": [
-            "candidate_id"
-          ],
-          "columnsTo": [
-            "candidate_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "schedule_date_time_slot_id_hr_id_unique": {
-          "name": "schedule_date_time_slot_id_hr_id_unique",
+        "schedule_candidate_contact_no_unique": {
+          "name": "schedule_candidate_contact_no_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "candidate_contact_no"
+          ]
+        },
+        "schedule_candidate_email_unique": {
+          "name": "schedule_candidate_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "candidate_email"
+          ]
+        },
+        "schedule_date_hr_id_start_time_end_time_unique": {
+          "name": "schedule_date_hr_id_start_time_end_time_unique",
           "nullsNotDistinct": false,
           "columns": [
             "date",
-            "time_slot_id",
-            "hr_id"
+            "hr_id",
+            "start_time",
+            "end_time"
           ]
         }
       },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
-    },
-    "public.time_slots": {
-      "name": "time_slots",
-      "schema": "",
-      "columns": {
-        "time_slot_id": {
-          "name": "time_slot_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "start_time": {
-          "name": "start_time",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_time": {
-          "name": "end_time",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.interview_status": {
+      "name": "interview_status",
+      "schema": "public",
+      "values": [
+        "Pending",
+        "Finished",
+        "No Show",
+        "Rejected",
+        "Selected"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

@@ -1,20 +1,33 @@
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { db } from "../model";
-import { HrDetailsTable } from "../model/schema/hrDetail";
+import { hrDetailsTable } from "../model/schema/HrDetail";
 import { hrSignInSchemaValidator } from "../validation/HrSchema";
 import { z } from "zod";
-import { signUpInput } from "../controller/auth/authController";
+import { TSignUpInput } from "../controller/auth/authController";
 
-export function SignUp(data: signUpInput) {
+export function SignUp(data: TSignUpInput) {
   return db
-    .insert(HrDetailsTable)
+    .insert(hrDetailsTable)
     .values(data)
-    .returning({ id: HrDetailsTable.hr_id });
+    .returning({ hrId: hrDetailsTable.hrId });
 }
 
 export function SignIn(data: z.infer<typeof hrSignInSchemaValidator>["body"]) {
-  return db
-    .select()
-    .from(HrDetailsTable)
-    .where(eq(HrDetailsTable.email, data.email));
+  return db.query.hrDetailsTable.findFirst({
+    where: eq(hrDetailsTable.email, data.email),
+  });
+}
+
+export function GetHrById(hrId: string) {
+  return db.query.hrDetailsTable.findFirst({
+    where: eq(hrDetailsTable.hrId, hrId),
+  });
+}
+export function GetHrByEmailOrContact(email: string, contactNo: string) {
+  return db.query.hrDetailsTable.findFirst({
+    where: or(
+      eq(hrDetailsTable.email, email),
+      eq(hrDetailsTable.contactNo, contactNo)
+    ),
+  });
 }

@@ -8,9 +8,18 @@ import {
   hrSignInSchemaValidator,
   hrSignUpSchemaValidator,
 } from "../../validation/HrSchema";
+import isAuthenticated from "../../middlewares/auth/isAuthenticated";
 
 const AuthRouter = Router();
-AuthRouter.post("/sign-up", validate(hrSignUpSchemaValidator), handleSignUp);
-AuthRouter.post("/sign-in", validate(hrSignInSchemaValidator), handleSignIn);
+AuthRouter.post(
+  "/sign-up",
+  [isAuthenticated, validate(hrSignUpSchemaValidator)],
+  handleSignUp
+);
+AuthRouter.post(
+  "/sign-in",
+  [isAuthenticated, validate(hrSignInSchemaValidator)],
+  handleSignIn
+);
 
 export default AuthRouter;
