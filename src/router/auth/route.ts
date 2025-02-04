@@ -1,25 +1,26 @@
 import { Router } from "express";
-import {
-  handleSignIn,
-  handleSignUp,
-} from "../../controller/auth/authController";
+import { handleSignIn } from "../../controller/auth/SignIn";
+import { handleSignUp } from "../../controller/auth/SignUp";
 import { validate } from "../../validation/common";
 import {
   hrSignInSchemaValidator,
   hrSignUpSchemaValidator,
 } from "../../validation/HrSchema";
-import isAuthenticated from "../../middlewares/auth/isAuthenticated";
+import blockAuthenticatedUsers from "../../middlewares/auth/blockAuthenticatedUsers";
+import { handleJWTRefresh } from "../../controller/auth/Refresh";
 
 const AuthRouter = Router();
 AuthRouter.post(
   "/sign-up",
-  [isAuthenticated, validate(hrSignUpSchemaValidator)],
+  [blockAuthenticatedUsers, validate(hrSignUpSchemaValidator)],
   handleSignUp
 );
 AuthRouter.post(
   "/sign-in",
-  [isAuthenticated, validate(hrSignInSchemaValidator)],
+  [blockAuthenticatedUsers, validate(hrSignInSchemaValidator)],
   handleSignIn
 );
+//@ts-ignore
+AuthRouter.post("/refresh", blockAuthenticatedUsers, handleJWTRefresh);
 
 export default AuthRouter;

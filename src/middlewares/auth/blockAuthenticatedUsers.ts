@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { APIResponse } from "../../helpers/apiReqRes";
 
-export default function isAuthenticated(
+export default function blockAuthenticatedUsers(
   req: Request,
   res: Response,
   next: NextFunction

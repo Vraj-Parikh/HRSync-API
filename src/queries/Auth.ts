@@ -3,7 +3,7 @@ import { db } from "../model";
 import { hrDetailsTable } from "../model/schema/HrDetail";
 import { hrSignInSchemaValidator } from "../validation/HrSchema";
 import { z } from "zod";
-import { TSignUpInput } from "../controller/auth/authController";
+import { TSignUpInput } from "../controller/auth/SignIn";
 
 export function SignUp(data: TSignUpInput) {
   return db

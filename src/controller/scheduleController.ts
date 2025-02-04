@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { GetErrorMessage } from "../../helpers/utils";
-import { APIResponse } from "../../helpers/apiReqRes";
-import { AddScheduleQuery, GetScheduleQuery } from "../../queries/Schedule";
-import { TInsertSchedule } from "../../types/types";
+import { GetErrorMessage } from "../helpers/utils";
+import { APIResponse } from "../helpers/apiReqRes";
+import { AddScheduleQuery, GetScheduleQuery } from "../queries/Schedule";
+import { TInsertSchedule } from "../types/types";
 
 export async function handleCreateSchedule(req: Request, res: Response) {
   try {
