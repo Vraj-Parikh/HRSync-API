@@ -7,24 +7,20 @@ import { APIResponse } from "../../helpers/apiReqRes";
 import { GetErrorMessage } from "../../helpers/utils";
 import { generateAccessToken } from "../../helpers/jwt.access";
 import env_parsed from "../../env";
-import { v4 as uuidv4 } from "uuid";
-import redisClient from "../../model/redis/redisClient";
 import { generateRefreshToken } from "../../helpers/jwt.refresh";
 import { TSessionRedis } from "../../types/types";
+import { createRedisSession } from "../../helpers/RedisSession";
 
 export type TSignUpInput = z.infer<typeof hrSignUpSchemaValidator>["body"];
 export async function handleSignUp(req: Request, res: Response) {
   try {
     const data: TSignUpInput = req.body;
-    const hrInfo = await GetHrByEmailOrContact(data.email, data.contactNo);
+    const hrInfo = await GetHrByEmailOrContact(data.email, data.contactNum);
     if (hrInfo) {
       res
         .status(400)
         .json(
-          APIResponse(
-            false,
-            `Another Hr with email ${data.email} or contactNo ${data.contactNo} found`
-          )
+          APIResponse(false, `Existing user with same email or contactNo found`)
         );
       return;
     }
@@ -35,13 +31,11 @@ export async function handleSignUp(req: Request, res: Response) {
       return;
     }
     const { hrId } = val[0];
-    const sessionId = uuidv4();
     const redisJson: TSessionRedis = {
       hrId,
       isValid: true,
     };
-    await redisClient.json.set(`session:${sessionId}`, "$", redisJson);
-
+    const sessionId = await createRedisSession(redisJson);
     const refreshTokenPayload = {
       sessionId,
     };

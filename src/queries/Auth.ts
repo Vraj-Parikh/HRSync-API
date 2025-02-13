@@ -27,7 +27,7 @@ export function GetHrByEmailOrContact(email: string, contactNo: string) {
   return db.query.hrDetailsTable.findFirst({
     where: or(
       eq(hrDetailsTable.email, email),
-      eq(hrDetailsTable.contactNo, contactNo)
+      eq(hrDetailsTable.contactNum, contactNo)
     ),
   });
 }

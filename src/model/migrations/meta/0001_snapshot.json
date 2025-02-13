@@ -1,6 +1,6 @@
 {
-  "id": "958f12e8-f730-43d3-889d-c21124cb70b4",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "67033706-a169-4acb-8cb8-d549bb1b167b",
+  "prevId": "958f12e8-f730-43d3-889d-c21124cb70b4",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -118,8 +118,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "candidate_contact_no": {
-          "name": "candidate_contact_no",
+        "candidate_contact_num": {
+          "name": "candidate_contact_num",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
@@ -149,11 +149,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "schedule_candidate_contact_no_unique": {
-          "name": "schedule_candidate_contact_no_unique",
+        "schedule_candidate_contact_num_unique": {
+          "name": "schedule_candidate_contact_num_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "candidate_contact_no"
+            "candidate_contact_num"
           ]
         },
         "schedule_candidate_email_unique": {

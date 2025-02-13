@@ -36,7 +36,7 @@ export function generateRefreshToken(
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: "strict",
+    sameSite: "none",
     maxAge: ms(env_parsed.JWT_REFRESH_TOKEN_EXPIRY),
   });
 }

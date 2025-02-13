@@ -5,7 +5,7 @@ export const hrDetailsTable = pgTable("hr_details", {
   hrId: uuid("hr_id").primaryKey().defaultRandom(),
   firstName: varchar("first_name", { length: 255 }).notNull(),
   lastName: varchar("last_name", { length: 255 }).notNull(),
-  contactNo: varchar("contact_no", { length: 255 }).notNull().unique(),
+  contactNum: varchar("contact_no", { length: 255 }).notNull().unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
 });

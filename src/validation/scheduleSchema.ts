@@ -1,16 +1,39 @@
 import { z } from "zod";
 import { InterviewStatusConst } from "../model/schema/schedule";
 
+export const contactValidator = z
+  .string()
+  .regex(
+    /^\d{10}$/,
+    "Contact number must be of 10 digits and contain only numbers"
+  );
+
 export const scheduleSchemaValidator = z.object({
   body: z.object({
-    date: z.date(),
-    startTime: z.date(),
-    endTime: z.date(),
+    startDateTime: z.string().nonempty(),
+    endDateTime: z.string().nonempty(),
     // hrId from token
-    interviewStatus: z.enum(InterviewStatusConst),
+    interviewStatus: z.enum(InterviewStatusConst).optional(),
     candidateFirstName: z.string().nonempty(),
     candidateLastName: z.string().nonempty(),
-    candidateEmail: z.string().email().optional(),
-    candidateContactNo: z.string().optional(),
+    candidateEmail: z
+      .string()
+      .refine(
+        (email) => !email || z.string().email().safeParse(email).success,
+        {
+          message: "Invalid email format",
+        }
+      ),
+    candidateContactNum: z
+      .string()
+      .refine(
+        (contactNo) =>
+          !contactNo || contactValidator.safeParse(contactNo).success,
+        {
+          message:
+            contactValidator._def.checks?.[0]?.message ||
+            "Invalid Contact Number",
+        }
+      ),
   }),
 });

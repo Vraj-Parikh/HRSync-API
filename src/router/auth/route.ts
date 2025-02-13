@@ -6,21 +6,13 @@ import {
   hrSignInSchemaValidator,
   hrSignUpSchemaValidator,
 } from "../../validation/HrSchema";
-import blockAuthenticatedUsers from "../../middlewares/auth/blockAuthenticatedUsers";
 import { handleJWTRefresh } from "../../controller/auth/Refresh";
+import { handleLogOut } from "../../controller/auth/LogOut";
 
 const AuthRouter = Router();
-AuthRouter.post(
-  "/sign-up",
-  [blockAuthenticatedUsers, validate(hrSignUpSchemaValidator)],
-  handleSignUp
-);
-AuthRouter.post(
-  "/sign-in",
-  [blockAuthenticatedUsers, validate(hrSignInSchemaValidator)],
-  handleSignIn
-);
-//@ts-ignore
-AuthRouter.post("/refresh", blockAuthenticatedUsers, handleJWTRefresh);
+AuthRouter.post("/sign-up", validate(hrSignUpSchemaValidator), handleSignUp);
+AuthRouter.post("/sign-in", validate(hrSignInSchemaValidator), handleSignIn);
+AuthRouter.get("/refresh", handleJWTRefresh);
+AuthRouter.get("/log-out", handleLogOut);
 
 export default AuthRouter;

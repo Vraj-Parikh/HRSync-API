@@ -7,7 +7,8 @@ export default function requireAuthentication(
   next: NextFunction
 ) {
   if (!req.user) {
-    return res.status(403).json(APIResponse(false, "User Not Logged In"));
+    res.status(401).json(APIResponse(false, "User not authenticated"));
+    return;
   }
   next();
 }

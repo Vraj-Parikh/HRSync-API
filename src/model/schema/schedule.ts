@@ -3,6 +3,7 @@ import {
   pgEnum,
   pgTable,
   time,
+  timestamp,
   unique,
   uuid,
   varchar,
@@ -25,9 +26,16 @@ export const scheduleTable = pgTable(
   "schedule",
   {
     scheduleId: uuid("schedule_id").primaryKey().defaultRandom(),
-    date: date("date").notNull(),
-    startTime: time("start_time").notNull(),
-    endTime: time("end_time").notNull(),
+    startDateTime: timestamp("start_date_time", {
+      precision: 0,
+      withTimezone: true,
+      mode: "string",
+    }).notNull(),
+    endDateTime: timestamp("end_date_time", {
+      precision: 0,
+      withTimezone: true,
+      mode: "string",
+    }).notNull(),
     hrId: uuid("hr_id")
       .references(() => hrDetailsTable.hrId)
       .notNull(),
@@ -40,14 +48,12 @@ export const scheduleTable = pgTable(
     candidateLastName: varchar("candidate_last_name", {
       length: 255,
     }).notNull(),
-    candidateContactNo: varchar("candidate_contact_no", {
+    candidateContactNum: varchar("candidate_contact_num", {
       length: 255,
     }).unique(),
     candidateEmail: varchar("candidate_email", { length: 255 }).unique(),
   },
-  (table) => [
-    unique().on(table.date, table.hrId, table.startTime, table.endTime),
-  ]
+  (table) => [unique().on(table.hrId, table.startDateTime, table.endDateTime)]
 );
 
 export const scheduleRelations = relations(scheduleTable, ({ one }) => ({

@@ -5,51 +5,69 @@ import { GetHrById } from "../../queries/Auth";
 import { APIResponse } from "../../helpers/apiReqRes";
 import { GetErrorMessage } from "../../helpers/utils";
 import { JWTAccessTokenSign } from "../../helpers/jwt.access";
-import env_parsed from "../../env";
 import redisClient from "../../model/redis/redisClient";
-import { JWTRefreshTokenVerify } from "../../helpers/jwt.refresh";
+import {
+  generateRefreshToken,
+  JWTRefreshTokenVerify,
+} from "../../helpers/jwt.refresh";
 import { TSessionRedis } from "../../types/types";
 import { SignOptions } from "jsonwebtoken";
 import env from "../../env";
-import ms from "ms";
+import { createRedisSession } from "../../helpers/RedisSession";
 
 export type TSignUpInput = z.infer<typeof hrSignUpSchemaValidator>["body"];
 export async function handleJWTRefresh(req: Request, res: Response) {
   try {
     const { refreshToken } = req.cookies as { refreshToken?: string };
     if (!refreshToken) {
-      return res
-        .status(401)
-        .json(APIResponse(false, "Refresh token not found"));
+      console.error("refresh token not found");
+      res.status(401).json(APIResponse(false, "Refresh token not found"));
+      return;
     }
     const decoded = JWTRefreshTokenVerify(refreshToken);
     if (!decoded || typeof decoded === "string") {
-      return res.status(401).json(APIResponse(false, "Invalid refresh token"));
+      console.error("Invalid refresh token");
+      res.status(401).json(APIResponse(false, "Invalid refresh token"));
+      return;
     }
     const { sessionId } = decoded;
     const sessionInfo = (await redisClient.json.get(
       `session:${sessionId}`
     )) as TSessionRedis | null;
     if (!sessionInfo || !sessionInfo.isValid) {
-      return res.status(401).json(APIResponse(false, "User session not found"));
+      console.error("refresh token session not found");
+      res.status(401).json(APIResponse(false, "User session not found"));
+      return;
     }
+    await redisClient.del(`session:${sessionId}`);
     const resp = await GetHrById(sessionInfo.hrId);
     if (!resp) {
-      return res.status(401).json(APIResponse(false, "User not found"));
+      console.error("user not found");
+      res.status(401).json(APIResponse(false, "User not found"));
+      return;
     }
+    // regenerate refresh token
+    const redisJson: TSessionRedis = {
+      hrId: resp.hrId,
+      isValid: true,
+    };
+    const newSessionId = await createRedisSession(redisJson);
+
+    const refreshTokenPayload = {
+      sessionId: newSessionId,
+    };
+    generateRefreshToken(res, refreshTokenPayload);
+
+    // return access token
     const { password, ...payload } = resp;
     const options: SignOptions = {
       expiresIn: env.JWT_ACCESS_TOKEN_EXPIRY,
     };
     const newAccessToken = JWTAccessTokenSign(payload, options);
-    res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: ms(env_parsed.JWT_ACCESS_TOKEN_EXPIRY),
-    });
-    return res.status(200).json(
+
+    res.status(200).json(
       APIResponse(true, "New access token created", {
-        newAccessToken,
+        accessToken: newAccessToken,
       })
     );
   } catch (error: unknown) {
@@ -57,6 +75,6 @@ export async function handleJWTRefresh(req: Request, res: Response) {
       error,
       "Could not generate access token from refresh token"
     );
-    return res.status(401).json(APIResponse(false, msg));
+    res.status(401).json(APIResponse(false, msg));
   }
 }
