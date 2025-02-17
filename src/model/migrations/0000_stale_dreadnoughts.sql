@@ -1,4 +1,4 @@
-CREATE TYPE "public"."interview_status" AS ENUM('Pending', 'Finished', 'No Show', 'Rejected', 'Selected');--> statement-breakpoint
+CREATE TYPE "public"."interview_status" AS ENUM('PENDING', 'FINISHED', 'NO-SHOW', 'REJECTED', 'SELECTED', 'HOLD');--> statement-breakpoint
 CREATE TABLE "hr_details" (
 	"hr_id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"first_name" varchar(255) NOT NULL,
@@ -15,12 +15,12 @@ CREATE TABLE "schedule" (
 	"start_date_time" timestamp(0) with time zone NOT NULL,
 	"end_date_time" timestamp(0) with time zone NOT NULL,
 	"hr_id" uuid NOT NULL,
-	"interview_status" "interview_status" DEFAULT 'Pending' NOT NULL,
+	"interview_status" "interview_status" DEFAULT 'PENDING' NOT NULL,
 	"candidate_first_name" varchar(255) NOT NULL,
 	"candidate_last_name" varchar(255) NOT NULL,
-	"candidate_contact_no" varchar(255),
+	"candidate_contact_num" varchar(255),
 	"candidate_email" varchar(255),
-	CONSTRAINT "schedule_candidate_contact_no_unique" UNIQUE("candidate_contact_no"),
+	CONSTRAINT "schedule_candidate_contact_num_unique" UNIQUE("candidate_contact_num"),
 	CONSTRAINT "schedule_candidate_email_unique" UNIQUE("candidate_email"),
 	CONSTRAINT "schedule_hr_id_start_date_time_end_date_time_unique" UNIQUE("hr_id","start_date_time","end_date_time")
 );

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { InterviewStatusConst } from "../model/schema/schedule";
+import { InterviewStatusConst } from "../config/enum";
 
 export const contactValidator = z
   .string()

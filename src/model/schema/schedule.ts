@@ -10,14 +10,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { hrDetailsTable } from "./HrDetail";
 import { relations } from "drizzle-orm";
+import { InterviewStatusConst } from "../../config/enum";
 
-export const InterviewStatusConst = [
-  "Pending",
-  "Finished",
-  "No Show",
-  "Rejected",
-  "Selected",
-] as const;
 export const InterviewStatusEnum = pgEnum(
   "interview_status",
   InterviewStatusConst
@@ -40,7 +34,7 @@ export const scheduleTable = pgTable(
       .references(() => hrDetailsTable.hrId)
       .notNull(),
     interviewStatus: InterviewStatusEnum("interview_status")
-      .default("Pending")
+      .default("PENDING")
       .notNull(),
     candidateFirstName: varchar("candidate_first_name", {
       length: 255,

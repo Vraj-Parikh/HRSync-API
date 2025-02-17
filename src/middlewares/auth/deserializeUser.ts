@@ -21,10 +21,8 @@ export async function DeserializeUser(
   try {
     const authHeader = req.headers["authorization"];
     const accessToken = authHeader ? authHeader.split(" ")[1] : "";
-    console.log(accessToken);
     if (accessToken) {
       const payload = JWTAccessTokenVerify(accessToken);
-      console.log(payload);
       if (payload) {
         req.user = payload as JwtPayload & TPayload;
         return next();

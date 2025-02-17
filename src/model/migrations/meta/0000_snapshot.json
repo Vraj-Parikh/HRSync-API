@@ -1,5 +1,5 @@
 {
-  "id": "958f12e8-f730-43d3-889d-c21124cb70b4",
+  "id": "102beece-7346-43ca-aa80-28b63a26d439",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -104,7 +104,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'Pending'"
+          "default": "'PENDING'"
         },
         "candidate_first_name": {
           "name": "candidate_first_name",
@@ -118,8 +118,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "candidate_contact_no": {
-          "name": "candidate_contact_no",
+        "candidate_contact_num": {
+          "name": "candidate_contact_num",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
@@ -149,11 +149,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "schedule_candidate_contact_no_unique": {
-          "name": "schedule_candidate_contact_no_unique",
+        "schedule_candidate_contact_num_unique": {
+          "name": "schedule_candidate_contact_num_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "candidate_contact_no"
+            "candidate_contact_num"
           ]
         },
         "schedule_candidate_email_unique": {
@@ -183,11 +183,12 @@
       "name": "interview_status",
       "schema": "public",
       "values": [
-        "Pending",
-        "Finished",
-        "No Show",
-        "Rejected",
-        "Selected"
+        "PENDING",
+        "FINISHED",
+        "NO-SHOW",
+        "REJECTED",
+        "SELECTED",
+        "HOLD"
       ]
     }
   },

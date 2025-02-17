@@ -6,6 +6,7 @@ import {
   count,
   eq,
   gte,
+  ilike,
   inArray,
   like,
   lte,
@@ -39,71 +40,65 @@ export function hasScheduleConflictQuery(
     ),
   });
 }
-type TScheduleFilters = Omit<
-  z.infer<typeof scheduleQueryParamSchema>,
-  "limit" | "page"
-> & {
+type TScheduleFilters = z.infer<typeof scheduleQueryParamSchema> & {
   hrId: string;
-  offset: number;
-  limit: number;
 };
-export function getScheduleQueryWithFiltersQuery(
-  data: TScheduleFilters,
-  returnCount = true
-) {
-  const conditions = [];
+export function getScheduleWithFiltersQuery(data: TScheduleFilters) {
   const {
     hrId,
-    startDate,
-    endDate,
-    status,
-    name,
-    email,
-    contactNum,
-    limit,
-    offset,
+    startDateTime,
+    endDateTime,
+    interviewStatus,
+    candidateFirstName,
+    candidateLastName,
+    candidateEmail,
+    candidateContactNum,
   } = data;
-  if (startDate) {
-    conditions.push(gte(scheduleTable.startDateTime, startDate));
+  const conditions = [eq(scheduleTable.hrId, hrId)];
+  if (startDateTime) {
+    conditions.push(gte(scheduleTable.startDateTime, startDateTime));
   }
-  if (endDate) {
-    conditions.push(lte(scheduleTable.endDateTime, endDate));
+  if (endDateTime) {
+    conditions.push(lte(scheduleTable.endDateTime, endDateTime));
   }
-  if (status) {
-    conditions.push(like(scheduleTable.interviewStatus, `${status}%`));
+  if (interviewStatus) {
+    conditions.push(eq(scheduleTable.interviewStatus, `${interviewStatus}`));
   }
-  if (name) {
+  if (candidateFirstName) {
     conditions.push(
-      or(
-        like(scheduleTable.candidateFirstName, `${name}%`),
-        like(scheduleTable.candidateLastName, `${name}%`)
-      )
+      ilike(scheduleTable.candidateFirstName, `${candidateFirstName}%`)
     );
   }
-  if (email) {
-    conditions.push(like(scheduleTable.candidateEmail, `${email}%`));
-  }
-  if (contactNum) {
-    conditions.push(like(scheduleTable.candidateContactNum, `${contactNum}%`));
-  }
-  const queries = [];
-  queries.push(
-    db
-      .select()
-      .from(scheduleTable)
-      .where(and(eq(scheduleTable.hrId, hrId), ...conditions))
-      .limit(limit)
-      .offset(offset)
-  );
-  if (returnCount) {
-    queries.push(
-      db
-        .select({ count: count() })
-        .from(scheduleTable)
-        .where(and(eq(scheduleTable.hrId, hrId), ...conditions))
+  if (candidateLastName) {
+    conditions.push(
+      ilike(scheduleTable.candidateLastName, `${candidateLastName}%`)
     );
   }
-  return Promise.all(queries);
+  if (candidateEmail) {
+    conditions.push(ilike(scheduleTable.candidateEmail, `${candidateEmail}%`));
+  }
+  if (candidateContactNum) {
+    conditions.push(
+      ilike(scheduleTable.candidateContactNum, `${candidateContactNum}%`)
+    );
+  }
+  return db
+    .select()
+    .from(scheduleTable)
+    .where(and(...conditions));
+}
+export function getScheduleByIdQuery(data: {
+  hrId: string;
+  scheduleId: string;
+}) {
+  const { hrId, scheduleId } = data;
+
+  return db.query.scheduleTable.findFirst({
+    where: and(
+      eq(scheduleTable.hrId, hrId),
+      eq(scheduleTable.scheduleId, scheduleId)
+    ),
+  });
 }
 
 export function deleteScheduleQuery(scheduleId: string[]) {

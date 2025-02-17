@@ -5,11 +5,13 @@ import {
   AddScheduleQuery,
   hasScheduleConflictQuery,
   deleteScheduleQuery,
-  getScheduleQueryWithFiltersQuery,
+  getScheduleWithFiltersQuery,
   updateScheduleQuery,
+  getScheduleByIdQuery,
 } from "../queries/Schedule";
 import { TInsertSchedule, TUpdateSchedule } from "../types/types";
 import { z } from "zod";
+import { InterviewStatusConst } from "../config/enum";
 
 export async function createScheduleHandler(req: Request, res: Response) {
   try {
@@ -31,46 +33,52 @@ export async function createScheduleHandler(req: Request, res: Response) {
 }
 
 export const scheduleQueryParamSchema = z.object({
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  status: z.string().optional(),
-  name: z.string().optional(),
-  email: z.string().optional(),
-  contactNum: z.string().optional(),
-  page: z.string().default("1"),
-  limit: z.string().default("10"),
+  startDateTime: z.string().optional(),
+  endDateTime: z.string().optional(),
+  candidateFirstName: z.string().optional(),
+  candidateLastName: z.string().optional(),
+  candidateEmail: z.string().optional(),
+  candidateContactNum: z.string().optional(),
+  interviewStatus: z.enum(InterviewStatusConst),
 });
 export async function getScheduleHandler(req: Request, res: Response) {
   try {
-    console.log(req.query);
     const parsed = scheduleQueryParamSchema.parse(req.query);
     const hrId = req.user.hrId as string;
-
-    const pageNumber = parseInt(parsed.page);
-    const pageSize = parseInt(parsed.limit);
-    const offset = (pageNumber - 1) * pageSize;
     const data = {
       hrId,
       ...parsed,
-      limit: pageSize,
-      offset: offset,
     };
-    const [schedules, scheduleCount] = await getScheduleQueryWithFiltersQuery(
-      data
-    );
-    //@ts-ignore
-    const totalPages = Math.ceil(pageNumber / scheduleCount[0].count);
-    const responseData = {
-      schedules,
-      pagination: {
-        currentPage: pageNumber,
-        totalPages,
-        pageSize,
-      },
-    };
+    const schedules = await getScheduleWithFiltersQuery(data);
     res
       .status(200)
-      .json(APIResponse(true, "Retrieved schedule successfully", responseData));
+      .json(
+        APIResponse(true, "Retrieved schedule successfully", { schedules })
+      );
+  } catch (error) {
+    console.log(error);
+    const message = GetErrorMessage(error, "Could fetch schedule");
+    res.status(500).json(APIResponse(false, message));
+  }
+}
+export async function getScheduleByIdHandler(req: Request, res: Response) {
+  try {
+    console.log(req.query);
+    const parsed = z
+      .object({ scheduleId: z.string().nonempty() })
+      .parse(req.query);
+    const hrId = req.user.hrId as string;
+    const data = {
+      hrId,
+      ...parsed,
+    };
+    const schedule = await getScheduleByIdQuery(data);
+    if (!schedule) {
+      res.status(404).json(APIResponse(false, "Schedule not found"));
+    }
+    res
+      .status(200)
+      .json(APIResponse(true, "Retrieved schedule successfully", { schedule }));
   } catch (error) {
     console.log(error);
     const message = GetErrorMessage(error, "Could fetch schedule");
